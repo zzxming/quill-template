@@ -28,9 +28,6 @@ class VideoFormat extends Video {
 
 VideoFormat.blotName = 'video';
 VideoFormat.tagName = 'video';
-VideoFormat.className = 'ql-fvideo';
+VideoFormat.className = 'ql-video';
 
-Quill.register({
-	'formats/video': VideoFormat,
-});
 export default VideoFormat;

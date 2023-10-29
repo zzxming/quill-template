@@ -3,8 +3,8 @@ import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
+import inject from '@rollup/plugin-inject';
 
-// https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
 		vue(),
@@ -16,6 +16,10 @@ export default defineConfig({
 			extensions: ['vue'],
 			dts: 'src/components.d.ts',
 			deep: true,
+		}),
+		// Quill image resize module requires window Quill, inject using this plugin
+		inject({
+			'window.Quill': 'quill',
 		}),
 	],
 	resolve: {

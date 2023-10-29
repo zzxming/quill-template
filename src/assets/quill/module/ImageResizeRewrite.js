@@ -1,47 +1,13 @@
 import Quill from 'quill';
-import { defaultsDeep } from 'lodash-es';
+import defaultsDeep from 'lodash/defaultsDeep';
 // image-resize 插件没有默认导出, 打包会报错, 只能一个一个引入
 import DefaultOptions from 'quill-image-resize-module/src/DefaultOptions';
 import { Resize } from 'quill-image-resize-module/src/modules/Resize';
-// import { DisplaySize } from 'quill-image-resize-module/src/modules/DisplaySize';
+import { DisplaySize } from 'quill-image-resize-module/src/modules/DisplaySize';
 import { Toolbar } from 'quill-image-resize-module/src/modules/Toolbar';
-
-import WrapperEmbed from '@/assets/quill/format/WrapperEmbed';
 
 // resize 的子模块中的 this.img 来自 BaseModule 的 constructor
 // 子模块的创建在 initializeModules, 在创建时把 this 传入了, 从中重新赋值获取的 this.img
-
-// 重写限制最小 width
-class ResizeRewrite extends Resize {
-	constructor(resizer) {
-		super(resizer);
-		this.quill = resizer.quill;
-		this.embed = resizer.embed;
-	}
-	handleDrag = (evt) => {
-		if (!this.img) {
-			return;
-		}
-		const deltaX = evt.clientX - this.dragStartX;
-		// new
-		let width = 0;
-		if (this.dragBox === this.boxes[0] || this.dragBox === this.boxes[3]) {
-			width = Math.round(this.preDragWidth - deltaX);
-		} else {
-			width = Math.round(this.preDragWidth + deltaX);
-		}
-		if (width <= 36) {
-			width = 36;
-		}
-		// 在 WrapperEmbed 中保存
-		if (this.embed) {
-			this.embed.setWidth(width);
-		}
-		this.img.width = width;
-		// end
-		this.requestUpdate();
-	};
-}
 
 const IconAlignLeft = `<svg viewbox="0 0 18 18">
 <line class="ql-stroke" x1="3" x2="15" y1="9" y2="9"></line>
@@ -64,13 +30,10 @@ const FloatStyle = new Parchment.Attributor.Style('float', 'float');
 const MarginStyle = new Parchment.Attributor.Style('margin', 'margin');
 const DisplayStyle = new Parchment.Attributor.Style('display', 'display');
 
-// embed没法通过 parchment 该样式，试试 其他方式，style?class? 但如何保存
-
 class ToolbarRewrite extends Toolbar {
 	constructor(resizer) {
 		super(resizer);
 		this.quill = resizer.quill;
-		this.embed = resizer.embed;
 	}
 
 	_defineAlignments = () => {
@@ -78,49 +41,31 @@ class ToolbarRewrite extends Toolbar {
 			{
 				icon: IconAlignLeft,
 				apply: () => {
-					// DisplayStyle.add(this.img, 'inline');
-					// FloatStyle.add(this.img, 'left');
-					// MarginStyle.add(this.img, '0 1em 1em 0');
-
-					if (this.embed.domNode) {
-						DisplayStyle.add(this.embed.domNode, 'inline');
-						FloatStyle.add(this.embed.domNode, 'left');
-						MarginStyle.add(this.embed.domNode, '0 1em 1em 0');
-					}
+					DisplayStyle.add(this.img, 'inline');
+					FloatStyle.add(this.img, 'left');
+					MarginStyle.add(this.img, '0 1em 1em 0');
 				},
 				isApplied: () => {
-					return FloatStyle.value(this.embed.domNode) == 'left';
+					return FloatStyle.value(this.img) == 'left';
 				},
 			},
 			{
 				icon: IconAlignCenter,
 				apply: () => {
-					// DisplayStyle.add(this.img, 'block');
-					// FloatStyle.remove(this.img);
-					// MarginStyle.add(this.img, 'auto');
-
-					if (this.embed.domNode) {
-						DisplayStyle.add(this.embed.domNode, 'block');
-						FloatStyle.add(this.embed.domNode, 'none');
-						MarginStyle.add(this.embed.domNode, 'auto');
-					}
+					DisplayStyle.add(this.img, 'block');
+					FloatStyle.remove(this.img);
+					MarginStyle.add(this.img, 'auto');
 				},
-				isApplied: () => MarginStyle.value(this.embed.domNode) == 'auto',
+				isApplied: () => MarginStyle.value(this.img) == 'auto',
 			},
 			{
 				icon: IconAlignRight,
 				apply: () => {
-					// DisplayStyle.add(this.img, 'inline');
-					// FloatStyle.add(this.img, 'right');
-					// MarginStyle.add(this.img, '0 0 1em 1em');
-
-					if (this.embed.domNode) {
-						DisplayStyle.add(this.embed.domNode, 'inline');
-						FloatStyle.add(this.embed.domNode, 'right');
-						MarginStyle.add(this.embed.domNode, '0 0 1em 1em');
-					}
+					DisplayStyle.add(this.img, 'inline');
+					FloatStyle.add(this.img, 'right');
+					MarginStyle.add(this.img, '0 0 1em 1em');
 				},
-				isApplied: () => FloatStyle.value(this.embed.domNode) == 'right',
+				isApplied: () => FloatStyle.value(this.img) == 'right',
 			},
 		];
 	};
@@ -136,15 +81,9 @@ class ToolbarRewrite extends Toolbar {
 				buttons.forEach((button) => (button.style.filter = ''));
 				if (alignment.isApplied()) {
 					// If applied, unapply
-					// FloatStyle.remove(this.img);
-					// MarginStyle.remove(this.img);
-					// DisplayStyle.remove(this.img);
-
-					if (this.embed.domNode) {
-						FloatStyle.remove(this.embed.domNode);
-						MarginStyle.remove(this.embed.domNode);
-						DisplayStyle.remove(this.embed.domNode);
-					}
+					FloatStyle.remove(this.img);
+					MarginStyle.remove(this.img);
+					DisplayStyle.remove(this.img);
 				} else {
 					this._selectButton(button);
 					alignment.apply();
@@ -164,7 +103,7 @@ class ToolbarRewrite extends Toolbar {
 	};
 }
 
-const knownModules = { Toolbar: ToolbarRewrite, Resize: ResizeRewrite };
+const knownModules = { Toolbar: ToolbarRewrite, Resize, DisplaySize };
 
 class ImageResizeRewrite {
 	constructor(quill, options = {}) {
@@ -204,58 +143,22 @@ class ImageResizeRewrite {
 
 	handleClick = (e) => {
 		if (e.target && e.target.tagName && e.target.tagName.toUpperCase() === 'IMG') {
-			let path = (e.composedPath && e.composedPath()) || e.path;
-			if (!path) return;
-			// 点击其他地方关闭
-			let embed = path.find(
-				(dom) =>
-					dom.tagName?.toUpperCase() === WrapperEmbed.tagName.toUpperCase() &&
-					dom.classList.contains(WrapperEmbed.className)
-			);
-
-			if (!embed) {
+			if (this.img === e.target) {
 				return;
 			}
-			// end
-
-			if (this.img === embed) {
-				return;
-			}
-
 			if (this.img) {
 				this.hide();
 			}
-			this.embed = Quill.find(embed);
-			if (this.embed.statics.blotName !== WrapperEmbed.blotName) {
-				this.embed = null;
-			}
-			// 原为 e.target, 但因为使用到 WrapperEmbed 包裹, 所以改为 embed
 			this.show(e.target);
 		} else if (this.img) {
 			this.hide();
 		}
 	};
 
-	// 取消使用 WrapperEmbed 就用这个
-	// handleClick = (e) => {
-	// 	if (e.target && e.target.tagName && e.target.tagName.toUpperCase() === 'IMG') {
-	// 		if (this.img === e.target) {
-	// 			return;
-	// 		}
-	// 		if (this.img) {
-	// 			this.hide();
-	// 		}
-	// 		this.show(e.target);
-	// 	} else if (this.img) {
-	// 		this.hide();
-	// 	}
-	// }
-
 	hide = () => {
 		this.hideOverlay();
 		this.removeModules();
 		this.img = undefined;
-		this.embed = undefined;
 	};
 
 	showOverlay = () => {

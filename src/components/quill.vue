@@ -5,20 +5,34 @@
 	import { SizeClass, SizeStyle } from '@/assets/quill/format/FontSizeFormat';
 	import LinkFormat from '@/assets/quill/format/LinkFormat';
 	import HeaderFormat from '@/assets/quill/format/HeaderFormat';
+	import ImageFormat from '@/assets/quill/format/ImageFormat';
+	import VideoFormat from '@/assets/quill/format/VideoFormat';
 
+	import ImageUploader from '@/assets/quill/module/ImageUploader';
+	import ImageResize from 'quill-image-resize-module';
+	// import ImageResize from '@/assets/quill/module/ImageResizeRewrite';
+	import VideoUploader from '@/assets/quill/module/VideoUploader';
 	import LinkModule from '@/assets/quill/module/Link';
 
 	import SnowTheme from '@/assets/quill/SnowTheme';
 
+	import 'quill-image-uploader/dist/quill.imageUploader.min.css';
+
 	Quill.register(
 		{
-			'formats/header': HeaderFormat,
 			'attributors/class/fontsize': SizeClass,
 			'attributors/style/fontsize': SizeStyle,
+
+			'formats/header': HeaderFormat,
 			'formats/fontsize': SizeClass,
 			'formats/linkFormat': LinkFormat,
+			'formats/image': ImageFormat,
+			'formats/video': VideoFormat,
 
 			[`modules/${LinkModule.moduleName}`]: LinkModule,
+			'modules/ImageResize': ImageResize,
+			[`modules/${ImageUploader.moduleName}`]: ImageUploader,
+			[`modules/${VideoUploader.moduleName}`]: VideoUploader,
 
 			'themes/snow': SnowTheme,
 		},
@@ -33,12 +47,35 @@
 	const editorRef = ref();
 	const toolbarRef = ref();
 
+	const uploadedVideos = ref([]);
+	const uploadedImgs = ref([]);
+	let quill = null;
+
 	onMounted(() => {
-		const quill = new Quill(editorRef.value, {
+		quill = new Quill(editorRef.value, {
 			theme: 'snow',
 			modules: {
 				toolbar: '#my-toolbar',
 				[`${LinkModule.moduleName}`]: {},
+				[`${ImageUploader.moduleName}`]: {
+					upload: (file) => {
+						return new Promise((resolve, reject) => {
+							uploadedImgs.value.push(file);
+							resolve(URL.createObjectURL(file));
+						});
+					},
+				},
+				ImageResize: {
+					modules: ['Resize', 'Toolbar'],
+				},
+				[`${VideoUploader.moduleName}`]: {
+					upload: (file) => {
+						return new Promise((resolve, reject) => {
+							uploadedVideos.value.push(file);
+							resolve(URL.createObjectURL(file));
+						});
+					},
+				},
 			},
 		});
 	});
@@ -80,6 +117,12 @@
 		// { value: '', name: Emoji.toolName, tip: '表情' },
 		// { value: '', name: Table.toolName, tip: '表格' },
 	]);
+
+	const show = () => {
+		console.log(uploadedVideos.value);
+		console.log(uploadedImgs.value);
+		console.log(quill.getContents());
+	};
 </script>
 
 <template>
@@ -108,6 +151,8 @@
 		id="editor"
 		ref="editorRef"
 	></div>
+
+	<button @click="show">wfom</button>
 </template>
 
 <style lang="less">
@@ -126,9 +171,6 @@
 	.ql-snow .ql-toolbar button,
 	.ql-snow .ql-picker {
 		margin: 0px;
-	}
-	.ql-embed-box * {
-		cursor: default;
 	}
 	.ql-container[data-readOnly='true'] {
 		.ql-editor > * {
@@ -262,17 +304,6 @@
 		}
 	}
 
-	.quill {
-		.image-uploading {
-			&::before {
-				border-top-color: #22d3ee;
-			}
-		}
-		img,
-		video {
-			display: inline-block;
-		}
-	}
 	.ql {
 		&-video {
 			&-play {
@@ -280,8 +311,6 @@
 				top: 50%;
 				left: 50%;
 				transform: translate(-50%, -50%);
-				// width: 80px;
-				// height: 80px;
 				width: 8%;
 				padding-top: 8%;
 				height: 0px;
@@ -293,10 +322,6 @@
 					position: absolute;
 					top: 50%;
 					left: 50%;
-					// border: 24px solid transparent;
-					// // -25% 视觉看起来不居中
-					// transform: translate(-20%, -50%);
-					// border-left-color: rgba(255, 255, 255, 0.7);
 					width: 50%;
 					height: 50%;
 					background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 50%);
@@ -314,7 +339,6 @@
 						position: absolute;
 						bottom: 20px;
 						right: 20px;
-						// height: 36px;
 						line-height: 14px;
 						padding: 4px 10px;
 						border-radius: 4px;

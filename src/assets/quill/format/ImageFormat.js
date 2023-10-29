@@ -13,23 +13,15 @@ class ImageFormat extends Image {
 		this.domNode.src = src;
 	}
 
-	setWidth(width) {
-		this.domNode.setAttribute('width', width);
-	}
-
 	static value(domNode) {
 		// 传给detla的属性
 		const { uuid } = domNode.dataset;
-		const width = domNode.getAttribute('width');
-		if (width) {
-			return { src: domNode.getAttribute('src'), uuid, width: domNode.getAttribute('width') };
-		}
 		return { src: domNode.getAttribute('src'), uuid };
 	}
 }
 
 ImageFormat.blotName = 'image';
 ImageFormat.tagName = 'IMG';
-ImageFormat.className = 'ql-fimage';
+ImageFormat.className = 'ql-image';
 
 export default ImageFormat;

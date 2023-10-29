@@ -1,5 +1,5 @@
-import WrapperEmbed from '@/assets/quill/format/WrapperEmbed';
 import LoadingVideo from '@/assets/quill/format/LoadingVideo';
+import VideoFormat from '@/assets/quill/format/VideoFormat';
 
 class VideoUploader {
 	constructor(quill, options) {
@@ -146,7 +146,7 @@ class VideoUploader {
 		this.quill.deleteText(range.index, lengthToDelete, 'user');
 
 		this.quill.insertText(range.index, '\n', 'user');
-		this.quill.insertEmbed(range.index + 1, WrapperEmbed.blotName, { src: url, tag: 'video', file }, 'user');
+		this.quill.insertEmbed(range.index + 1, VideoFormat.blotName, { src: url, uuid: file.uuid }, 'user');
 		this.quill.insertText(range.index + 2, '\n', 'user');
 		range.index += 3;
 

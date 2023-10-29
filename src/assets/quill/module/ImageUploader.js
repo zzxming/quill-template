@@ -2,9 +2,7 @@ import Quill from 'quill';
 const Delta = Quill.import('delta');
 import ImageUploader from 'quill-image-uploader';
 import LoadingImage from 'quill-image-uploader/src/blots/image.js';
-import WrapperEmbed from '@/assets/quill/format/WrapperEmbed';
-import { compressPic } from '@/utils/image';
-import { ElMessage } from 'element-plus';
+import ImageFormat from '@/assets/quill/format/ImageFormat';
 
 class LoadingImageRewrite extends LoadingImage {
 	static create(src) {
@@ -21,32 +19,12 @@ class ImageUploaderRewrite extends ImageUploader {
 		super(quill, options);
 	}
 
-	compressImageFile(file) {
-		return new Promise((resolve, reject) => {
-			let img = new Image();
-			img.onload = async () => {
-				let blobFile = await compressPic({ file, width: img.width, height: img.height });
-				resolve(new File([blobFile], file.name, { type: blobFile.type }));
-			};
-			img.onerror = (e) => reject(e);
-			img.src = URL.createObjectURL(file);
-		});
-	}
-
-	async readAndUploadFile(file) {
-		if (this.placeholderDelta) {
-			ElMessage.warning('等待图片加载完成继续');
-			return;
-		}
+	readAndUploadFile(file) {
+		let isUploadReject = false;
 		if (file.type.split('/')[0] !== 'image') {
 			return;
 		}
-		this.insertImagePreview();
-
-		// 非 gif 图片进行压缩
-		if (file.type.split('/')[1] !== 'gif') {
-			file = await this.compressImageFile(file);
-		}
+		this.insertImagePreview(URL.createObjectURL(file));
 
 		let uuid = crypto.randomUUID();
 		let timestamp = new Date().getTime();
@@ -57,39 +35,29 @@ class ImageUploaderRewrite extends ImageUploader {
 				this.insertToEditor(imageUrl, file);
 			},
 			(error) => {
-				this.removeBase64Image();
+				isUploadReject = true;
+				this.removeLoadingImage();
 				console.warn(error);
 			}
 		);
 	}
 
-	insertImagePreview() {
-		const range = this.range;
-		this.placeholderDelta = this.quill.insertEmbed(
-			range.index,
-			LoadingImageRewrite.blotName,
-			'/static/image/loading.png',
-			'api'
-		);
-		this.quill.setSelection(range, 'api');
+	removeLoadingImage() {
+		const lengthToDelete = this.calculatePlaceholderInsertLength();
+		this.placeholderDelta = null;
+		return lengthToDelete;
 	}
 
-	// 不使用 WrapperEmbed, 可能需要修改一下 imageFormat, 加上 uuid
-	// insertToEditor(url, file) {
-	// 	const range = this.range;
-	// 	this.quill.removeFormat(range.index + 1, 1, 'user');
-
-	// 	this.placeholderDelta = null;
-
-	// 	range.index += 1;
-	// 	this.quill.setSelection(range, 'user');
-	// }
+	insertImagePreview(url) {
+		const range = this.range;
+		this.placeholderDelta = this.quill.insertEmbed(range.index, LoadingImageRewrite.blotName, url, 'api');
+		this.quill.setSelection(range, 'api');
+	}
 
 	insertToEditor(url, file) {
 		const range = this.range;
 
-		const lengthToDelete = this.calculatePlaceholderInsertLength();
-		this.placeholderDelta = null;
+		const lengthToDelete = this.removeLoadingImage();
 
 		this.quill.formatText(range.index, lengthToDelete, { [LoadingImageRewrite.blotName]: false }, 'api');
 		let deleteLen = this.quill.getText(range.index, 1) === '\n' ? 2 : 1;
@@ -99,20 +67,12 @@ class ImageUploaderRewrite extends ImageUploader {
 				.delete(deleteLen)
 				.insert('\n')
 				.insert({
-					[WrapperEmbed.blotName]: { src: url, tag: 'img', file },
+					[ImageFormat.blotName]: { src: url, uuid: file.uuid },
 				}),
 			'api'
 		);
 		range.index += 3;
 		this.quill.setSelection(range, 'user');
-
-		// this.quill.insertText(range.index, '\n', 'user');
-		// this.quill.insertEmbed(range.index + 1, WrapperEmbed.blotName, { src: url, tag: 'img', file }, 'user');
-		// this.quill.insertText(range.index + 2, '\n', 'user');
-		// range.index += 3;
-
-		// // this.quill.deleteText(range.index, 1, 'user');
-		// this.quill.setSelection(range, 'user');
 	}
 
 	calculatePlaceholderInsertLength() {
