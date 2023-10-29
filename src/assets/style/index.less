@@ -1,0 +1,26 @@
+* {
+	box-sizing: border-box;
+}
+input {
+	border: none;
+	outline: none;
+	padding: 0;
+	&:focus {
+		outline: none;
+	}
+}
+button {
+	margin: 0;
+	padding: 0;
+	border: 1px solid #dcdfe6;
+	color: #606266;
+	background-color: transparent;
+	&:focus-visible {
+		outline: 2px solid #c8c9cc;
+		outline-offset: 1px;
+	}
+}
+
+@import '@/assets/style/dialog.less';
+@import '@/assets/style/link.less';
+@import '@/assets/style/input.less';
