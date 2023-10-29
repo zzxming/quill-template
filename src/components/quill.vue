@@ -10,6 +10,7 @@
 
 	import ImageUploader from '@/assets/quill/module/ImageUploader';
 	import ImageResize from 'quill-image-resize-module';
+	import ImageResizeMinSize from '@/assets/quill/module/ImageResizeMinSize';
 	// import ImageResize from '@/assets/quill/module/ImageResizeRewrite';
 	import VideoUploader from '@/assets/quill/module/VideoUploader';
 	import LinkModule from '@/assets/quill/module/Link';
@@ -40,9 +41,18 @@
 	);
 
 	const props = defineProps({
-		content: String,
+		content: {
+			type: [String, Object],
+		},
+		contentType: {
+			type: String,
+			default: 'delta',
+			validator: (value) => {
+				return ['delta', 'html', 'text'].includes(value);
+			},
+		},
 	});
-	const emits = defineEmits(['update:content']);
+	const emits = defineEmits(['update:content', 'textChange']);
 
 	const editorRef = ref();
 	const toolbarRef = ref();
@@ -66,7 +76,7 @@
 					},
 				},
 				ImageResize: {
-					modules: ['Resize', 'Toolbar'],
+					modules: ['Toolbar', ImageResizeMinSize],
 				},
 				[`${VideoUploader.moduleName}`]: {
 					upload: (file) => {
@@ -78,8 +88,48 @@
 				},
 			},
 		});
+
+		quill.on('text-change', (delta, oldContents, source) => {
+			internalModel = maybeClone(getContents());
+			// Update v-model:content when text changes
+			if (!internalModelEquals(props.content)) {
+				emits('update:content', internalModel);
+			}
+			emits('textChange', { delta, oldContents, source });
+		});
 	});
 
+	const getContents = (index, length) => {
+		if (props.contentType === 'html') {
+			return getHTML();
+		} else if (props.contentType === 'text') {
+			return getText(index, length);
+		}
+		return quill === null || quill === void 0 ? void 0 : quill.getContents(index, length);
+	};
+	const getQuill = () => {
+		return quill;
+	};
+	const maybeClone = (delta) => {
+		return typeof delta === 'object' && delta ? delta.slice() : delta;
+	};
+	const deltaHasValuesOtherThanRetain = (delta) => {
+		return Object.values(delta.ops).some((v) => !v.retain || Object.keys(v).length !== 1);
+	};
+	// Doesn't need reactivity, but does need to be cloned to avoid deep mutations always registering as equal
+	let internalModel;
+	const internalModelEquals = (against) => {
+		if (typeof internalModel === typeof against) {
+			if (against === internalModel) {
+				return true;
+			}
+			// Ref/Proxy does not support instanceof, so do a loose check
+			if (typeof against === 'object' && against && typeof internalModel === 'object' && internalModel) {
+				return !deltaHasValuesOtherThanRetain(internalModel.diff(against));
+			}
+		}
+		return false;
+	};
 	const toolbarList = ref([
 		{ value: '', name: 'bold', tip: '加粗' },
 		{ value: '', name: 'italic', tip: '倾斜' },
@@ -118,11 +168,12 @@
 		// { value: '', name: Table.toolName, tip: '表格' },
 	]);
 
-	const show = () => {
-		console.log(uploadedVideos.value);
-		console.log(uploadedImgs.value);
-		console.log(quill.getContents());
-	};
+	defineExpose({
+		editor: editorRef,
+		getQuill,
+		uploadedImgs,
+		uploadedVideos,
+	});
 </script>
 
 <template>
@@ -151,8 +202,6 @@
 		id="editor"
 		ref="editorRef"
 	></div>
-
-	<button @click="show">wfom</button>
 </template>
 
 <style lang="less">
