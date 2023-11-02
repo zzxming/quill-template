@@ -57,52 +57,13 @@ export default class MyColorPicker extends MyPicker {
 	}
 
 	update() {
-		let option;
-		if (this.select.selectedIndex > -1) {
-			let item = this.container.querySelector('.ql-picker-options').children[this.select.selectedIndex];
-			option = this.select.options[this.select.selectedIndex];
-			this.selectItem(item);
-		} else {
-			this.selectItem(null);
-		}
-		let isActive = option != null && option !== this.select.querySelector('option[selected]');
-		this.label.classList.toggle('ql-active', isActive);
-		// 上面代码没有更改, 继承自 quill/ui/picker.js 主要是需要使用到 isActive
+		let isActive = super.update();
 		// 使展开 icon 与图标 icon 同背景和颜色
 		this.labelIcon && this.labelIcon.classList.toggle('ql-active', isActive);
 	}
 
 	selectItem(item, trigger) {
-		let selected = this.container.querySelector('.ql-selected');
-		// 注释此行, 使点击图标 label 使能直接更改颜色
-		// if (item === selected) return;
-		if (selected != null) {
-			selected.classList.remove('ql-selected');
-		}
-		if (item == null) return;
-		item.classList.add('ql-selected');
-		this.select.selectedIndex = [].indexOf.call(item.parentNode.children, item);
-		if (item.hasAttribute('data-value')) {
-			this.label.setAttribute('data-value', item.getAttribute('data-value'));
-		} else {
-			this.label.removeAttribute('data-value');
-		}
-		if (item.hasAttribute('data-label')) {
-			this.label.setAttribute('data-label', item.getAttribute('data-label'));
-		} else {
-			this.label.removeAttribute('data-label');
-		}
-		if (trigger) {
-			if (typeof Event === 'function') {
-				this.select.dispatchEvent(new Event('change'));
-			} else if (typeof Event === 'object') {
-				// IE11
-				let event = document.createEvent('Event');
-				event.initEvent('change', true, true);
-				this.select.dispatchEvent(event);
-			}
-			this.close();
-		}
+		super.selectItem(item, trigger);
 
 		// ColorPicker 重写代码
 		let colorLabel = this.label.querySelector('.ql-color-label');
@@ -116,8 +77,11 @@ export default class MyColorPicker extends MyPicker {
 		}
 		// 以上代码除初始行外未修改
 
-		// 保存修改颜色
-		this.curColor = value;
+		if (trigger) {
+			console.log(value);
+			// 保存修改颜色
+			this.curColor = value;
+		}
 	}
 
 	buildItem(option) {

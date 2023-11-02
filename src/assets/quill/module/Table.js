@@ -55,8 +55,8 @@ Quill.register(
 );
 
 import { h, render } from 'vue';
-import QuillTableCreatorVue from '@/components/Creator/QuillTable/QuillTableCreator.vue';
-import { randomId } from '@/utils';
+// import QuillTableCreatorVue from '@/components/Creator/QuillTable/QuillTableCreator.vue';
+import { randomId } from '@/assets/quill/utils';
 
 class TableHandler extends Module {
 	constructor(quill, options) {

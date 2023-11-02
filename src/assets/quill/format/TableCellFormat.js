@@ -1,4 +1,3 @@
-import { randomId } from '@/utils';
 import Quill from 'quill';
 import ContainBlot from '@/assets/quill/blot/contain';
 const Parchment = Quill.import('parchment');

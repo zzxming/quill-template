@@ -5,7 +5,7 @@ export default class MyPicker extends Picker {
 		super(select);
 
 		this.labelIcon = null;
-		this.container.dataset.tip = select.dataset.tip;
+		// this.container.dataset.tip = select.dataset.tip;
 	}
 
 	buildLabel() {
@@ -25,8 +25,10 @@ export default class MyPicker extends Picker {
 			this.selectItem(null);
 		}
 		let isActive = option != null && option !== this.select.querySelector('option[selected]');
+		// 上面代码没有更改, 继承自 quill/ui/picker.js 主要是需要使用到 isActive
 		// 切换光标时切换 toolbar 上的按钮状态
 		this.label.classList.toggle('ql-active', isActive);
 		this.label.dataset.value = option ? option.value : false;
+		return isActive;
 	}
 }
