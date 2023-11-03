@@ -42,7 +42,6 @@ export default class SnowTooltip extends BaseTooltip {
 			this.root.style.top = top - verticalShift + 'px';
 			this.root.classList.add('ql-flip');
 		}
-		console.log(shift);
 		return shift;
 	}
 

@@ -2,12 +2,12 @@ import Quill from 'quill';
 
 import BaseTheme from 'quill/themes/base';
 import IconPicker from 'quill/ui/icon-picker';
-import Emitter from 'quill/core/emitter';
+// import Emitter from 'quill/core/emitter';
 
 import SnowTooltip from '@/assets/quill/SnowToolTip';
 import MyPicker from '@/assets/quill/picker/Picker';
 import MyColorPicker from '@/assets/quill/picker/ColorPicker';
-// import TableTooltip from '@/assets/quill/TableToolTip';
+import TableTooltip from '@/assets/quill/TableToolTip';
 
 // 注意引入方式, import 和 import 引入的 SnowTheme 会导致 icons 为模块, 而无法获取 svg
 const icons = Quill.prototype.constructor.imports['ui/icons'];
@@ -61,7 +61,7 @@ export default class SnowThemeRewrite extends BaseTheme {
 		super(quill, options);
 		this.quill.container.classList.add('ql-snow');
 
-		// this.tableToolTip = new TableTooltip(this.quill, this.options);
+		this.tableToolTip = new TableTooltip(this.quill, this.options);
 	}
 
 	extendToolbar(toolbar) {

@@ -14,11 +14,22 @@
 </script>
 
 <template>
-	<Quill
-		ref="quillRef"
-		v-model:content="content"
-	/>
-	<button @click="show">wfom</button>
+	<div class="ww">
+		<button @click="show">wfom</button>
+		<div>
+			<Quill
+				ref="quillRef"
+				v-model:content="content"
+			/>
+		</div>
+	</div>
 </template>
 
-<style scoped></style>
+<style scoped>
+	.ww {
+		display: flex;
+		:deep(.quill) {
+			width: 800px;
+		}
+	}
+</style>
