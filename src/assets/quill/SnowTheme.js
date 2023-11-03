@@ -101,12 +101,13 @@ export default class SnowThemeRewrite extends BaseTheme {
 				return new MyPicker(select);
 			}
 		});
-		let update = () => {
-			this.pickers.forEach(function (picker) {
-				picker.update();
-			});
-		};
-		this.quill.on(Emitter.events.EDITOR_CHANGE, update);
+		// 光标改变时，picker 随着当前行改变
+		// let update = () => {
+		// 	this.pickers.forEach(function (picker) {
+		// 		picker.update();
+		// 	});
+		// };
+		// this.quill.on(Emitter.events.EDITOR_CHANGE, update);
 	}
 }
 

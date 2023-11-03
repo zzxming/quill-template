@@ -16,19 +16,6 @@ export default class MyPicker extends Picker {
 	}
 
 	update() {
-		let option;
-		if (this.select.selectedIndex > -1) {
-			let item = this.container.querySelector('.ql-picker-options').children[this.select.selectedIndex];
-			option = this.select.options[this.select.selectedIndex];
-			this.selectItem(item);
-		} else {
-			this.selectItem(null);
-		}
-		let isActive = option != null && option !== this.select.querySelector('option[selected]');
-		// 上面代码没有更改, 继承自 quill/ui/picker.js 主要是需要使用到 isActive
-		// 切换光标时切换 toolbar 上的按钮状态
-		this.label.classList.toggle('ql-active', isActive);
-		this.label.dataset.value = option ? option.value : false;
-		return isActive;
+		super.update();
 	}
 }

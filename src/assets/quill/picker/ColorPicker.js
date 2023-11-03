@@ -6,9 +6,9 @@ export default class MyColorPicker extends MyPicker {
 		super(select);
 		this.label.innerHTML = label;
 		this.container.classList.add('ql-color-picker');
-		[].slice.call(this.container.querySelectorAll('.ql-picker-item'), 0, 7).forEach(function (item) {
-			item.classList.add('ql-primary');
-		});
+		// [].slice.call(this.container.querySelectorAll('.ql-picker-item'), 0, 7).forEach(function (item) {
+		// 	item.classList.add('ql-primary');
+		// });
 
 		// 为图标 label 设置事件使点击 label 可直接更改颜色
 		this.label.addEventListener('mousedown', () => {
@@ -57,15 +57,20 @@ export default class MyColorPicker extends MyPicker {
 	}
 
 	update() {
-		let isActive = super.update();
-		// 使展开 icon 与图标 icon 同背景和颜色
-		this.labelIcon && this.labelIcon.classList.toggle('ql-active', isActive);
+		super.update();
+		this.label.dataset.value = this.curColor;
 	}
 
+	// trigger 是否触发 select 元素的 change
 	selectItem(item, trigger) {
+		let selected = this.container.querySelector('.ql-selected');
+		if (item === selected) return;
+		if (selected != null) {
+			selected.classList.remove('ql-selected');
+		}
+		if (item == null) return;
 		super.selectItem(item, trigger);
 
-		// ColorPicker 重写代码
 		let colorLabel = this.label.querySelector('.ql-color-label');
 		let value = item ? item.getAttribute('data-value') || '' : '';
 		if (colorLabel) {
@@ -75,13 +80,10 @@ export default class MyColorPicker extends MyPicker {
 				colorLabel.style.fill = value;
 			}
 		}
-		// 以上代码除初始行外未修改
 
-		if (trigger) {
-			console.log(value);
-			// 保存修改颜色
-			this.curColor = value;
-		}
+		// 以上代码除初始行外未修改
+		this.label.setAttribute('data-value', value);
+		this.curColor = value;
 	}
 
 	buildItem(option) {
