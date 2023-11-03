@@ -5,7 +5,6 @@ export default class MyPicker extends Picker {
 		super(select);
 
 		this.labelIcon = null;
-		// this.container.dataset.tip = select.dataset.tip;
 	}
 
 	buildLabel() {
@@ -15,7 +14,16 @@ export default class MyPicker extends Picker {
 		return label;
 	}
 
-	update() {
-		super.update();
+	// quill 监听了 input 的 change 事件，会根据 select.value 设置 format
+	// 在 dist/quill.js 9440 行
+	triggerChange() {
+		if (typeof Event === 'function') {
+			this.select.dispatchEvent(new Event('change'));
+		} else if (typeof Event === 'object') {
+			// IE11
+			let event = document.createEvent('Event');
+			event.initEvent('change', true, true);
+			this.select.dispatchEvent(event);
+		}
 	}
 }

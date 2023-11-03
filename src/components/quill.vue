@@ -146,14 +146,14 @@
 		{ value: 'sub', name: 'script', tip: '上标' },
 		{ value: 'super', name: 'script', tip: '下标' },
 
-		// { value: [], name: 'fontsize', tip: '字体大小' },
-		// {
-		// 	// 官方文档里是 false, 但实测需要使用 '', 估计因为判断的是空值
-		// 	value: ['', 1, 2, 3, 4, 5, 6],
-		// 	name: 'header',
-		// 	tip: '标题',
-		// },
-		// { value: [], name: 'color', tip: '字体颜色' },
+		{ value: [], name: 'fontsize', tip: '字体大小' },
+		{
+			// 官方文档里是 false, 但实测需要使用 '', 估计因为判断的是空值
+			value: ['', 1, 2, 3, 4, 5, 6],
+			name: 'header',
+			tip: '标题',
+		},
+		{ value: [], name: 'color', tip: '字体颜色' },
 		{ value: [], name: 'background', tip: '背景颜色' },
 
 		{ value: '', name: 'align', tip: '左对齐' },
