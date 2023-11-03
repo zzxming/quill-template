@@ -43,10 +43,7 @@ class D3Chart {
 		// console.log(chartWidth, height);
 		let { node, tips } = chartComponent(chartData, chartWidth - 24, height - 80);
 
-		// this.quill.insertText(range.index, '\n', 'user');
-		// this.quill.insertEmbed(range.index, 'block', '', 'user');
 		this.quill.insertEmbed(range.index, D3ChartFormat.blotName, { dep: dataDep, node, tips, componentID }, 'user');
-		// this.quill.insertEmbed(range.index + 2, 'block', '', 'user');
 
 		range.index += 1;
 		this.quill.setSelection(range, 'user');

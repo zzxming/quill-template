@@ -54,7 +54,7 @@ Quill.register(
 	true
 );
 
-import { h, render } from 'vue';
+// import { h, render } from 'vue';
 // import QuillTableCreatorVue from '@/components/Creator/QuillTable/QuillTableCreator.vue';
 import { randomId } from '@/assets/quill/utils';
 
@@ -254,16 +254,21 @@ class TableHandler extends Module {
 		});
 	}
 
-	handleSelectDisplay() {
-		this.createSelect();
+	async handleSelectDisplay() {
 		this.quill.focus();
 		this.range = this.quill.getSelection();
+		if (this.options.size) {
+			const { row, col } = await this.options.size();
+			this.insertTable(row, col);
+		} else {
+			this.createSelect();
 
-		this.tableBtn.classList.add('ql-expanded');
-		this.tableBtn.dataset.active = true;
-		window.removeEventListener('click', this.tableInsertSelectCloseHandler);
-		this.tableInsertSelectCloseHandler = this.closeSelecte.bind(this);
-		window.addEventListener('click', this.tableInsertSelectCloseHandler);
+			this.tableBtn.classList.add('ql-expanded');
+			this.tableBtn.dataset.active = true;
+			window.removeEventListener('click', this.tableInsertSelectCloseHandler);
+			this.tableInsertSelectCloseHandler = this.closeSelecte.bind(this);
+			window.addEventListener('click', this.tableInsertSelectCloseHandler);
+		}
 	}
 
 	createSelect() {
@@ -295,12 +300,13 @@ class TableHandler extends Module {
 	insertTable(rows, columns) {
 		// const range = this.quill.getSelection(true);
 		const range = this.range;
+		console.log(range);
 		if (range == null) return;
 		let currentBlot = this.quill.getLeaf(range.index)[0];
 		let delta = new Delta().retain(range.index);
 
 		if (isForbidInTable(currentBlot)) {
-			ElMessage.warning('不支持的嵌套');
+			alert('不支持的嵌套');
 			return;
 		}
 
@@ -340,7 +346,6 @@ class TableHandler extends Module {
 					return memo;
 				}, memo);
 			}, delta);
-			// console.log(delta);
 			// console.log(columns, rows);
 			this.quill.updateContents(delta, Quill.sources.USER);
 			this.quill.setSelection(range.index + columns + 1, Quill.sources.API);

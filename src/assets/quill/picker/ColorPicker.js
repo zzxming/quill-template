@@ -47,7 +47,6 @@ export default class MyColorPicker extends MyPicker {
 			}
 		}
 		// 以上代码来自 color-picker 未修改
-		console.log(value);
 		this.curColor = value;
 	}
 

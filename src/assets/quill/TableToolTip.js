@@ -5,14 +5,10 @@ import TableWrapperFormat from '@/assets/quill/format/TableWrapperFormat';
 import TableBodyFormat from '@/assets/quill/format/TableBodyFormat';
 import TableColgroupFormat from '@/assets/quill/format/TableColgroupFormat';
 
-import D3Chart from '@/assets/quill/module/D3Chart';
 import Table from '@/assets/quill/module/Table';
 
 const TIPHEIGHT = 12;
 const CELLMINWIDTH = 20;
-
-// 在 table 内时禁用的 tool 的 name
-const disableToolNames = ['video', D3Chart.toolName, Table.toolName];
 
 export default class TableTooltip {
 	constructor(quill, options) {
@@ -33,6 +29,11 @@ export default class TableTooltip {
 
 		this.root = quill.addContainer('ql-table-tooltip');
 		this.root.style.height = TIPHEIGHT + 'px';
+
+		const resizeObserver = new ResizeObserver((entries) => {
+			this.hide();
+		});
+		resizeObserver.observe(this.quill.root);
 
 		this.hide();
 		this.listen();
@@ -92,10 +93,11 @@ export default class TableTooltip {
 		toolbar.disableByTable = true;
 		toolbar.container.classList.add('ql-disabled-table');
 		// 去除 toolbar 对应 module 的 handler 事件, 保存在 tableDisableToolHandlers
-		for (let i = 0; i < disableToolNames.length; i++) {
-			this.tableDisableToolHandlers[disableToolNames[i]] = toolbar.handlers[disableToolNames[i]];
+		for (let i = 0; i < TableTooltip.disableToolNames.length; i++) {
+			this.tableDisableToolHandlers[TableTooltip.disableToolNames[i]] =
+				toolbar.handlers[TableTooltip.disableToolNames[i]];
 			// 不要使用 delete 删除属性
-			toolbar.handlers[disableToolNames[i]] = () => {};
+			toolbar.handlers[TableTooltip.disableToolNames[i]] = () => {};
 		}
 	}
 
@@ -130,7 +132,7 @@ export default class TableTooltip {
 	position(reference) {
 		let left = 15; // editor 的左右 padding
 		let top = reference.top + this.quill.container.scrollTop - 11;
-		this.root.style.left = left + 'px';
+		this.root.style.left = left + 1 + 'px';
 		this.root.style.top = top + 'px';
 	}
 
@@ -175,18 +177,19 @@ export default class TableTooltip {
 		// 设置每个 drag 下标对应 col 下标，最右会多一个 drag, 与 better-table 的类似
 		// 根据当前的 col left 配合 pageX 计算, 使保证最小宽度
 		const handleMousemove = (e) => {
-			let colHeadRect = tableColHeads[curColIndex].getBoundingClientRect();
+			// 最好不要用 getBoundingClientRect 的 top/bottom/left/right, 这是根据视口距离，有滚动条就会出问题
+			const offsetLeft = tableColHeads[curColIndex].offsetLeft;
 			let resX = e.pageX;
-			if (e.pageX - colHeadRect.x < CELLMINWIDTH) {
-				resX = colHeadRect.x + CELLMINWIDTH;
+			if (e.pageX - offsetLeft < CELLMINWIDTH) {
+				resX = offsetLeft + CELLMINWIDTH;
 			}
 			resX = Math.floor(resX);
 			tipColBreak.style.left = resX + 'px';
-			tipColBreak.dataset.w = resX - colHeadRect.x;
+			tipColBreak.dataset.w = resX - offsetLeft;
 			// console.log(colHeadRect, curColIndex);
 		};
 		const handleMouseup = (e) => {
-			let w = parseInt(tipColBreak.dataset.w);
+			const w = parseInt(tipColBreak.dataset.w);
 			this.table.domNode.style.width =
 				parseFloat(this.table.domNode.style.width) -
 				parseFloat(tableColHeads[curColIndex].style.width) +
@@ -207,8 +210,8 @@ export default class TableTooltip {
 			document.addEventListener('mousemove', handleMousemove);
 			curColIndex = i;
 
-			let tableRect = this.tableWrapper.domNode.getBoundingClientRect();
-			let divDom = document.createElement('div');
+			const tableRect = this.tableWrapper.domNode.getBoundingClientRect();
+			const divDom = document.createElement('div');
 			divDom.classList.add('ql-table-drag-line');
 			divDom.style.top = tableRect.y - TIPHEIGHT + 'px';
 			divDom.style.left = e.pageX + 'px';
@@ -220,3 +223,6 @@ export default class TableTooltip {
 		tableColHeadSeparators.map((el, i) => el.addEventListener('mousedown', handleMousedown.bind(this, i)));
 	}
 }
+
+// 在 table 内时禁用的 tool 的 name
+TableTooltip.disableToolNames = ['video', Table.toolName];

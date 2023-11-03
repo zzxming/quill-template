@@ -74,6 +74,14 @@
 			theme: props.theme,
 			modules: {
 				toolbar: '#my-toolbar',
+				[`${TableModule.moduleName}`]: {
+					size: () => {
+						return {
+							row: 2,
+							col: 3,
+						};
+					},
+				},
 				[`${LinkModule.moduleName}`]: {},
 				[`${ImageUploader.moduleName}`]: {
 					upload: (file) => {
@@ -173,7 +181,7 @@
 		{ value: '', name: 'video', tip: '视频' },
 		// { value: '', name: D3Chart.toolName, tip: '数据图' },
 		// { value: '', name: Emoji.toolName, tip: '表情' },
-		// { value: '', name: Table.toolName, tip: '表格' },
+		{ value: '', name: TableModule.toolName, tip: '表格' },
 	];
 
 	defineExpose({
@@ -184,31 +192,33 @@
 </script>
 
 <template>
-	<div
-		ref="toolbarRef"
-		id="my-toolbar"
-	>
-		<template v-for="tool in toolbarList">
-			<button
-				v-if="typeof tool.value === 'string'"
-				:class="`ql-${tool.name}`"
-				:value="tool.value"
-			></button>
-			<select
-				v-else
-				:class="`ql-${tool.name}`"
-			>
-				<option
-					v-for="v in tool.value"
-					:value="v"
-				></option>
-			</select>
-		</template>
+	<div class="quill">
+		<div
+			ref="toolbarRef"
+			id="my-toolbar"
+		>
+			<template v-for="tool in toolbarList">
+				<button
+					v-if="typeof tool.value === 'string'"
+					:class="`ql-${tool.name}`"
+					:value="tool.value"
+				></button>
+				<select
+					v-else
+					:class="`ql-${tool.name}`"
+				>
+					<option
+						v-for="v in tool.value"
+						:value="v"
+					></option>
+				</select>
+			</template>
+		</div>
+		<div
+			id="editor"
+			ref="editorRef"
+		></div>
 	</div>
-	<div
-		id="editor"
-		ref="editorRef"
-	></div>
 </template>
 
 <style lang="less">
@@ -460,6 +470,10 @@
 			&-wrapper {
 				width: 100%;
 				overflow: auto;
+				p& {
+					padding-left: 1px;
+					padding-right: 1px;
+				}
 			}
 			&-row {
 				&:first-child {
