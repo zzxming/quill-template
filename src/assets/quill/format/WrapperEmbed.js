@@ -5,9 +5,6 @@ import { createApp } from 'vue';
 import Error from '@/components/Directives/Error.vue';
 import { numberToTimeDisplay } from '@/utils/time';
 
-// const BlockEmbed = Quill.import('blots/block/embed');
-// const InlineEmbed = Quill.import('blots/embed');
-// const Inline = Quill.import('blots/inline');
 const Parchment = Quill.import('parchment');
 
 class WrapperEmbed extends Parchment.Embed {

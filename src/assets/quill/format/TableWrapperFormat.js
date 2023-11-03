@@ -1,6 +1,5 @@
 import Quill from 'quill';
 const Container = Quill.import('blots/container');
-// const Inline = Quill.import('blots/inline');
 const Parchment = Quill.import('parchment');
 
 class TableWrapper extends Container {

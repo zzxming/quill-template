@@ -1,5 +1,6 @@
 <script setup>
 	import Delta from 'quill-delta';
+
 	const quillRef = ref();
 
 	const content = ref(new Delta());

@@ -11,9 +11,9 @@
 	import ImageUploader from '@/assets/quill/module/ImageUploader';
 	import ImageResize from 'quill-image-resize-module';
 	import ImageResizeMinSize from '@/assets/quill/module/ImageResizeMinSize';
-	// import ImageResize from '@/assets/quill/module/ImageResizeRewrite';
 	import VideoUploader from '@/assets/quill/module/VideoUploader';
 	import LinkModule from '@/assets/quill/module/Link';
+	import TableModule from '@/assets/quill/module/Table';
 
 	import SnowTheme from '@/assets/quill/SnowTheme';
 
@@ -34,6 +34,7 @@
 			'modules/ImageResize': ImageResize,
 			[`modules/${ImageUploader.moduleName}`]: ImageUploader,
 			[`modules/${VideoUploader.moduleName}`]: VideoUploader,
+			[`modules/${TableModule.moduleName}`]: TableModule,
 
 			'themes/snow': SnowTheme,
 		},
@@ -51,6 +52,13 @@
 				return ['delta', 'html', 'text'].includes(value);
 			},
 		},
+		theme: {
+			type: String,
+			default: 'snow',
+			validator: (value) => {
+				return ['snow', 'bubble', ''].includes(value);
+			},
+		},
 	});
 	const emits = defineEmits(['update:content', 'textChange']);
 
@@ -63,7 +71,7 @@
 
 	onMounted(() => {
 		quill = new Quill(editorRef.value, {
-			theme: 'snow',
+			theme: props.theme,
 			modules: {
 				toolbar: '#my-toolbar',
 				[`${LinkModule.moduleName}`]: {},
@@ -130,7 +138,7 @@
 		}
 		return false;
 	};
-	const toolbarList = ref([
+	const toolbarList = [
 		{ value: '', name: 'bold', tip: '加粗' },
 		{ value: '', name: 'italic', tip: '倾斜' },
 		{ value: '', name: 'underline', tip: '下划线' },
@@ -166,10 +174,9 @@
 		// { value: '', name: D3Chart.toolName, tip: '数据图' },
 		// { value: '', name: Emoji.toolName, tip: '表情' },
 		// { value: '', name: Table.toolName, tip: '表格' },
-	]);
+	];
 
 	defineExpose({
-		editor: editorRef,
 		getQuill,
 		uploadedImgs,
 		uploadedVideos,

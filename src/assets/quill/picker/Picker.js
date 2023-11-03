@@ -5,7 +5,6 @@ export default class MyPicker extends Picker {
 		super(select);
 
 		this.labelIcon = null;
-		this.container.dataset.tip = select.dataset.tip;
 	}
 
 	buildLabel() {
@@ -15,18 +14,16 @@ export default class MyPicker extends Picker {
 		return label;
 	}
 
-	update() {
-		let option;
-		if (this.select.selectedIndex > -1) {
-			let item = this.container.querySelector('.ql-picker-options').children[this.select.selectedIndex];
-			option = this.select.options[this.select.selectedIndex];
-			this.selectItem(item);
-		} else {
-			this.selectItem(null);
+	// quill 监听了 input 的 change 事件，会根据 select.value 设置 format
+	// 在 dist/quill.js 9440 行
+	triggerChange() {
+		if (typeof Event === 'function') {
+			this.select.dispatchEvent(new Event('change'));
+		} else if (typeof Event === 'object') {
+			// IE11
+			let event = document.createEvent('Event');
+			event.initEvent('change', true, true);
+			this.select.dispatchEvent(event);
 		}
-		let isActive = option != null && option !== this.select.querySelector('option[selected]');
-		// 切换光标时切换 toolbar 上的按钮状态
-		this.label.classList.toggle('ql-active', isActive);
-		this.label.dataset.value = option ? option.value : false;
 	}
 }
