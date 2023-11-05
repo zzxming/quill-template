@@ -2,12 +2,11 @@ import Quill from 'quill';
 
 import BaseTheme from 'quill/themes/base';
 import IconPicker from 'quill/ui/icon-picker';
-// import Emitter from 'quill/core/emitter';
+import Emitter from 'quill/core/emitter';
 
 import SnowTooltip from '@/assets/quill/SnowToolTip';
 import MyPicker from '@/assets/quill/picker/Picker';
 import MyColorPicker from '@/assets/quill/picker/ColorPicker';
-import TableTooltip from '@/assets/quill/TableToolTip';
 
 // 注意引入方式, import 和 import 引入的 SnowTheme 会导致 icons 为模块, 而无法获取 svg
 const icons = Quill.prototype.constructor.imports['ui/icons'];
@@ -60,8 +59,6 @@ export default class SnowThemeRewrite extends BaseTheme {
 	constructor(quill, options) {
 		super(quill, options);
 		this.quill.container.classList.add('ql-snow');
-
-		this.tableToolTip = new TableTooltip(this.quill, this.options);
 	}
 
 	extendToolbar(toolbar) {
@@ -102,12 +99,13 @@ export default class SnowThemeRewrite extends BaseTheme {
 			}
 		});
 		// 光标改变时，picker 随着当前行改变
-		// let update = () => {
-		// 	this.pickers.forEach(function (picker) {
-		// 		picker.update();
-		// 	});
-		// };
-		// this.quill.on(Emitter.events.EDITOR_CHANGE, update);
+		let update = () => {
+			this.pickers.forEach(function (picker) {
+				if (picker instanceof MyColorPicker) return;
+				picker.update();
+			});
+		};
+		this.quill.on(Emitter.events.EDITOR_CHANGE, update);
 	}
 }
 

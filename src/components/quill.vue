@@ -13,7 +13,9 @@
 	import ImageResizeMinSize from '@/assets/quill/module/ImageResizeMinSize';
 	import VideoUploader from '@/assets/quill/module/VideoUploader';
 	import LinkModule from '@/assets/quill/module/Link';
-	import TableModule from '@/assets/quill/module/Table';
+
+	import TableModule from 'quill1.3.7-table-module';
+	import 'quill1.3.7-table-module/dist/table.css';
 
 	import SnowTheme from '@/assets/quill/SnowTheme';
 
@@ -75,12 +77,12 @@
 			modules: {
 				toolbar: '#my-toolbar',
 				[`${TableModule.moduleName}`]: {
-					size: () => {
-						return {
-							row: 2,
-							col: 3,
-						};
-					},
+					// size: () => {
+					// 	return {
+					// 		row: 2,
+					// 		col: 3,
+					// 	};
+					// },
 				},
 				[`${LinkModule.moduleName}`]: {},
 				[`${ImageUploader.moduleName}`]: {
@@ -274,100 +276,6 @@
 				margin: 0px;
 			}
 		}
-
-		.ql-table {
-			&-tooltip {
-				position: absolute;
-				display: flex;
-				width: calc(100% - 30px);
-				height: 12px;
-				overflow: hidden;
-				&.ql-hidden {
-					display: none;
-				}
-				.ql-table-col {
-					&-header {
-						position: relative;
-						flex-shrink: 0;
-						width: 20%;
-						height: 100%;
-						background-color: #f3f4f5;
-						border-right: 1px solid #ccc;
-						border-top: 1px solid #ccc;
-						border-bottom: 1px solid #ccc;
-						&:first-child {
-							border-left: 1px solid #ccc;
-						}
-					}
-
-					&-separator {
-						position: absolute;
-						top: 0px;
-						bottom: 0px;
-						right: -1px;
-						width: 1px;
-						cursor: ew-resize;
-						z-index: 1;
-						&::after {
-							right: -6px;
-						}
-						&::before {
-							left: -6px;
-						}
-						&::after,
-						&::before {
-							content: '';
-							position: absolute;
-							top: 0;
-							display: block;
-							width: 8px;
-							height: 100%;
-						}
-					}
-				}
-			}
-		}
-	}
-	// table 的辅助 dom
-	.ql-table-drag-line {
-		position: absolute;
-		width: 2px;
-		background-color: #409eff;
-		cursor: e-resize;
-	}
-	.ql-table {
-		&-operation {
-			&-menu {
-				border-radius: 6px;
-				box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.1);
-				overflow: hidden;
-				background-color: var(--white);
-				font-size: 14px;
-				z-index: 1;
-				&-dividing {
-					height: 1px;
-					background-color: #efefef;
-				}
-				&-subtitle {
-					color: #999;
-					font-size: 14px;
-					padding: 5px 16px;
-				}
-				&-item {
-					display: flex;
-					align-items: center;
-					padding: 10px 16px;
-					background-color: #fff;
-					cursor: pointer;
-					color: #595959;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					&:hover {
-						background-color: #f5f5f5;
-					}
-				}
-			}
-		}
 	}
 
 	.ql {
@@ -462,45 +370,6 @@
 			&-72 {
 				font-size: 72px;
 				line-height: 76px;
-			}
-		}
-		&-table {
-			// margin: 4px 0px;
-			border-collapse: separate;
-			&-wrapper {
-				width: 100%;
-				overflow: auto;
-				p& {
-					padding-left: 1px;
-					padding-right: 1px;
-				}
-			}
-			&-row {
-				&:first-child {
-					.ql-table-cell {
-						border-top: 1px solid #a1a1aa;
-					}
-				}
-			}
-			&-cell {
-				border: 1px solid #a1a1aa;
-				padding: 8px 12px;
-				font-size: 14px;
-				outline: none;
-				> * {
-					overflow: hidden;
-					text-overflow: ellipsis;
-					white-space: normal;
-					word-break: break-all;
-
-					line-height: 14px + 8px;
-				}
-			}
-			col {
-				border-collapse: separate;
-				text-indent: initial;
-				display: table-column;
-				table-layout: fixed;
 			}
 		}
 		&-picker {
@@ -687,18 +556,6 @@
 						position: static;
 						width: 100%;
 						margin-top: 0px;
-					}
-				}
-			}
-
-			&.ql-disabled-table {
-				.ql {
-					&-table,
-					&-d3chart,
-					&-video {
-						opacity: 0.3;
-						background-color: transparent;
-						cursor: not-allowed;
 					}
 				}
 			}
